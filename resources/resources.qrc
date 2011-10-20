@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file alias="c.f">../shaders/cylinder.frag</file>
+        <file alias="c.v">../shaders/cylinder.vert</file>
+        <file alias="s.f">../shaders/sphere.frag</file>
+        <file alias="s.v">../shaders/sphere.vert</file>
+        <file alias="s2.f">../shaders/sphere2.frag</file>
+        <file alias="s2.v">../shaders/sphere2.vert</file>
+    </qresource>
+    <qresource prefix="/img">
+        <file alias="ngb.jpg">../images/numbers_bg.jpg</file>
+    </qresource>
+</RCC>
