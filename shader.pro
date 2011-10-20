@@ -5,7 +5,7 @@
 QT+=opengl
 LIBS+=-lGLEW
 TEMPLATE = app
-TARGET = 
+TARGET = shader
 DEPENDPATH += .
 INCLUDEPATH += .
 
