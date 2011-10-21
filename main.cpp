@@ -28,7 +28,7 @@ int main ( int argc, char **argv )
     w.gl->setNumCylinders ( n );
 
     // Level of Detail
-    w.gl->setN(5);
+    w.gl->setN(24);
 
     return app.exec();
 }

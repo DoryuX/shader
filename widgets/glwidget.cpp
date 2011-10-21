@@ -4,6 +4,10 @@
 #include <QFile>
 #include <QTime>
 
+#include <iostream>
+
+using namespace std;
+
 long ms_elapsed;
 int frames;
 QTime qt;
@@ -16,6 +20,12 @@ char * glWidget::readFile(QString name)
     qint64 size = file.size();
     char *s = new char[size+1];
     n = file.read(s,size);
+
+    if(n == -1) {
+        fprintf(stderr, "Could not read file %s!\n", name.toStdString().c_str());
+        exit(1);
+    }
+
     s[size] = 0;
     return s;
 }
@@ -42,7 +52,7 @@ glWidget::glWidget ( QWidget *parent )
     seed = time(NULL);
     srand(seed);
     QTimer *timer = new QTimer(this);
-    connect ( timer, SIGNAL(timeout()), this, SLOT(rotate()) );
+    connect ( timer, SIGNAL(timeout()), this, SLOT(update()) );
     timer->start(20);
 }
 
@@ -60,9 +70,9 @@ void glWidget::setN(int n)
     this->n = n;
 
     // Reinitialize values.
-    Cylinder::buildArrays(n,vertices,num_vertices,indices,num_indices);
+    //Cube::buildArrays(n,vertices,num_vertices,indices,num_indices);
 
-    update();
+    //update();
 
     frames = 0;
     qt.start();
@@ -85,7 +95,7 @@ void glWidget::setNumCylinders(int n)
     for ( int i = 0; i < n; i++ ) {
         cylinders.push_back ( new Cylinder(max_radius) );
     }
-    update();
+    //update();
 
     Cylinder::buildColors(this->num_cylinders, colors);
     Cylinder::buildRotations(this->num_cylinders, rotMat);
@@ -101,11 +111,15 @@ void glWidget::updatePositions()
     Cylinder *c;
 
     num_cylinders = cylinders.size();
+    //cout << "updatePositions: num_cylinders - " << num_cylinders << endl;
     if ( positions == NULL ) {
         positions = new glm::vec4[num_cylinders];
     }
 
+    //cout << "after new positions" << endl;
+
     for ( i = 0; i < num_cylinders; i++ ) {
+        //cout << "I: " << i << endl;
         c = cylinders[i];
         c->x = c->x + c->vel[0];
         c->y = c->y + c->vel[1];
@@ -114,7 +128,12 @@ void glWidget::updatePositions()
         if ( c->x < -500 || c->x > 500 ) c->vel[0] = -c->vel[0];
         if ( c->y < -500 || c->y > 500 ) c->vel[1] = -c->vel[1];
         if ( c->z < -500 || c->z > 500 ) c->vel[2] = -c->vel[2];
-
+/*
+        cout << "cx: " << c->x << 
+                " cy: " << c->y << 
+                " cz: " << c->z << 
+                " cr: " << c->m_radius << endl;
+*/
         positions[i][0] = c->x;
         positions[i][1] = c->y;
         positions[i][2] = c->z;
@@ -210,6 +229,10 @@ void glWidget::setArrayObject() {
     // Bind vertex attributes
     glGenVertexArrays ( 1, &vao );
     glBindVertexArray ( vao );
+
+    cout << "num_vertices: " << num_vertices << endl;
+    cout << "num_cylinders: " << num_cylinders << endl;
+    cout << "num_indices: " << num_indices << endl;
 
     glGenBuffers(7,vbo);
     glBindBuffer(GL_ARRAY_BUFFER,vbo[0]); // vertices
@@ -397,7 +420,7 @@ void glWidget::rotate()
 {
     x_angle += 0.1; // 0.1
     y_angle += 0.13; // 0.13
-    update();
+    //update();
 }
 
 void glWidget::paintGL()
@@ -408,21 +431,27 @@ void glWidget::paintGL()
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     if ( first ) {
+        cout << "buildArrays" << endl;
         Cylinder::buildArrays(n,vertices,num_vertices,indices,num_indices);
 
+        cout << "positions" << endl;
         if(positions == NULL) {
             updatePositions();
         }
 
+        cout << "rotations" << endl;
         if(rotations == NULL) {
             buildRotations();
         }
 
+        cout << "velocities" << endl;
         if(velocities == NULL) {
             setVelocities();
         }
 
+        cout << "setUniforms" << endl;
         setUniforms();
+        cout << "setArrayObject" << endl;
         setArrayObject();
 
         MV = glm::mat4(1.0f);
@@ -459,19 +488,21 @@ void glWidget::paintGL()
     }
 
     //updatePositions();
+/*
+    if ( rotateCylinders ) {
+        rotate();
+        updateRotations();
+        MV = glm::rotate ( MV, x_angle, glm::vec3(1.0f,0.0f,0.0f) );
+        MV = glm::rotate ( MV, y_angle, glm::vec3(0.0f,1.0f,0.0f) );
+    }
 
-    //if ( rotateCylinders ) {
-    //if ( 1 ) {
-        //updateRotations();
-        //MV = glm::rotate ( MV, x_angle, glm::vec3(1.0f,0.0f,0.0f) );
-        //MV = glm::rotate ( MV, y_angle, glm::vec3(0.0f,1.0f,0.0f) );
-    //}
+    glGetFloatv(GL_MODELVIEW_MATRIX, &MV[0][0]);
+*/
+    if(first == 0) {
+        glUniform1f(locElapsedTime, elapsed_time);
 
-    //glGetFloatv(GL_MODELVIEW_MATRIX, &MV[0][0]);
-
-    glUniform1f(locElapsedTime, elapsed_time);
-
-    glDrawElementsInstancedEXT ( GL_TRIANGLE_STRIP, num_indices, GL_UNSIGNED_INT, indices, num_cylinders );
+        glDrawElementsInstancedEXT ( GL_TRIANGLE_STRIP, num_indices, GL_UNSIGNED_INT, indices, num_cylinders );
+    }
 
     frames++;
     ms_elapsed = qt.elapsed();

@@ -10,13 +10,21 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += math/algebra3.h shapes/cylinder.h widgets/glwidget.h  widgets/mainwindow.h shapes/sphere.h
+HEADERS += math/algebra3.h \
+           shapes/cylinder.h \
+           widgets/glwidget.h \
+           widgets/mainwindow.h \
+           shapes/sphere.h \
+           shapes/cube.h
+
 SOURCES += math/algebra3.cpp \
            shapes/cylinder.cpp \
            widgets/glwidget.cpp \
            main.cpp \
            widgets/mainwindow.cpp \
-           shapes/sphere.cpp
+           shapes/sphere.cpp \
+           shapes/cube.cpp
+
 RESOURCES += \
     resources/resources.qrc
 
