@@ -6,6 +6,8 @@
         <file alias="s.v">../shaders/sphere.vert</file>
         <file alias="s2.f">../shaders/sphere2.frag</file>
         <file alias="s2.v">../shaders/sphere2.vert</file>
+        <file alias="t.v">../shaders/toon.vert</file>
+        <file alias="t.f">../shaders/toon.frag</file>
     </qresource>
     <qresource prefix="/img">
         <file alias="ngb.jpg">../images/numbers_bg.jpg</file>

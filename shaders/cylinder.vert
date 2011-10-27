@@ -52,26 +52,30 @@ mat4 RotateMatrix( const in float angle, const in vec3 axis ) {
 
 void main()
 {
+    mat4 rotMat = rotationMatrix;
     //vec4 pos = texelFetch(tex_Positions, gl_InstanceID);
-    vec4 pos = vec4(vertex.xyz, 1);
+
+    vec4 pos = rotMat * vec4(vertex.xyz, 1);
     pos.x += (velocities.x) * (2*cos(4*elapsed_time));
     pos.y += (velocities.y) * (2*sin(4*elapsed_time));
     pos.z -= (velocities.z * ((2*cos(4*elapsed_time) + (2*sin(4*elapsed_time)))));
 
-    mat4 rotMat = rotationMatrix;
 
     //rotMat *= RotateMatrix(mod((rotations.x * elapsed_time), 360), vec3(1.0, 0.0, 0.0));
     //rotMat *= RotateMatrix(mod((rotations.y * elapsed_time), 360), vec3(0.0, 1.0, 0.0));
     //rotMat *= RotateMatrix(mod((rotations.z * elapsed_time), 360), vec3(0.0, 0.0, 1.0));
 
-    vec4 norm = normalize(vec4(pos.x, pos.y, 0.0, 0.0));
+    //vec4 norm = normalize(vec4(pos.x, pos.y, 0.0, 0.0));
+    vec4 norm = normalize(vec4(pos.x, pos.y, pos.z, 0.0));
 
     // Lighting Calculations
-    vec4 n = normalize( NM * rotMat * norm );
+    //vec4 n = normalize( NM * rotMat * norm );
+    vec4 n = normalize( NM * norm );
 
     Normal = n.xyz;
 
-    vec4 v4 = MV * rotMat * pos;
+    //vec4 v4 = MV * rotMat * pos;
+    vec4 v4 = MV * pos;
 
     vec3 v3 = v4.xyz / v4.w;
 
@@ -83,7 +87,8 @@ void main()
     specular = light[5];
     shininess = light[4];
 
-    gl_Position = rotMat * pos * instance.w;
+    //gl_Position = rotMat * pos * instance.w;
+    gl_Position = pos * instance.w;
     gl_Position.w = 1;
     gl_Position.xyz += instance.xyz;
     gl_Position = MVP * gl_Position;

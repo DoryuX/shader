@@ -201,13 +201,14 @@ void glWidget::setVelocities() {
 }
 
 void glWidget::setUniforms() {
-    locDiff = glGetUniformLocation ( shaderProgram, "diffuse" );
+    //locDiff = glGetUniformLocation ( shaderProgram, "diffuse" );
     locLight = glGetUniformLocation ( shaderProgram, "light" );
+    
     locMVP = glGetUniformLocation ( shaderProgram, "MVP" );
     locMV = glGetUniformLocation ( shaderProgram, "MV" );
     locNM = glGetUniformLocation ( shaderProgram, "NM" );
     locElapsedTime = glGetUniformLocation( shaderProgram, "elapsed_time");
-
+    
     locVertex = glGetAttribLocation ( shaderProgram, "vertex" );
     locInstance = glGetAttribLocation ( shaderProgram, "instance" );
     locColor = glGetAttribLocation ( shaderProgram, "color" );
@@ -221,20 +222,18 @@ void glWidget::setUniforms() {
 
     glUniform4fv ( locLight, 6, &light[0][0] );
 
-    tbo_Positions = glGetUniformLocation( shaderProgram, "tex_Positions");
+    //tbo_Positions = glGetUniformLocation( shaderProgram, "tex_Positions");
 
 }
 
 void glWidget::setArrayObject() {
     // Bind vertex attributes
+    
     glGenVertexArrays ( 1, &vao );
     glBindVertexArray ( vao );
 
-    cout << "num_vertices: " << num_vertices << endl;
-    cout << "num_cylinders: " << num_cylinders << endl;
-    cout << "num_indices: " << num_indices << endl;
-
     glGenBuffers(7,vbo);
+    
     glBindBuffer(GL_ARRAY_BUFFER,vbo[0]); // vertices
     glEnableVertexAttribArray(locVertex);
     glBufferData(GL_ARRAY_BUFFER,sizeof(GLfloat)*4*num_vertices,
@@ -288,7 +287,7 @@ void glWidget::setArrayObject() {
     glEnableVertexAttribArray( locRotMat + 3 );
 
     glBindBuffer( GL_ARRAY_BUFFER, vbo[4] );
-    glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * 4, rotMat, GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * 4, rotMat, GL_DYNAMIC_DRAW );
 
     glVertexAttribPointer( locRotMat, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)0 );
     glVertexAttribPointer( locRotMat + 1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4) );
@@ -315,14 +314,18 @@ void glWidget::setShader() {
     // Create Vertex Shader
     vertexShader = glCreateShader ( GL_VERTEX_SHADER );
     code = readFile(":/shaders/c.v");
+    //code = readFile(":/shaders/t.v");
     glShaderSource ( vertexShader, 1, (const GLchar **)&code, NULL );
+    free(code);
     glCompileShader ( vertexShader );
     printShaderInfoLog(vertexShader);
 
     // Create Fragment Shader
     fragmentShader = glCreateShader ( GL_FRAGMENT_SHADER );
     code = readFile(":/shaders/c.f");
+    //code = readFile(":/shaders/t.f");
     glShaderSource ( fragmentShader, 1, (const GLchar **)&code, NULL );
+    free(code);
     glCompileShader ( fragmentShader );
     printShaderInfoLog(fragmentShader);
 
@@ -429,29 +432,23 @@ void glWidget::paintGL()
     srand(seed);
     glEnable ( GL_DEPTH_TEST );
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
+    
     if ( first ) {
-        cout << "buildArrays" << endl;
         Cylinder::buildArrays(n,vertices,num_vertices,indices,num_indices);
 
-        cout << "positions" << endl;
         if(positions == NULL) {
             updatePositions();
         }
 
-        cout << "rotations" << endl;
         if(rotations == NULL) {
             buildRotations();
         }
 
-        cout << "velocities" << endl;
         if(velocities == NULL) {
             setVelocities();
         }
 
-        cout << "setUniforms" << endl;
         setUniforms();
-        cout << "setArrayObject" << endl;
         setArrayObject();
 
         MV = glm::mat4(1.0f);
@@ -469,7 +466,7 @@ void glWidget::paintGL()
         glEnableVertexAttribArray( locRotMat + 3 );
 
         glBindBuffer( GL_ARRAY_BUFFER, vbo[4] );
-        glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * 4 * num_cylinders, rotMat, GL_STATIC_DRAW );
+        glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * 4 * num_cylinders, rotMat, GL_DYNAMIC_DRAW );
 
         glVertexAttribDivisorARB(locInstance, 1);
         glVertexAttribDivisorARB(locColor, 1);
@@ -488,21 +485,43 @@ void glWidget::paintGL()
     }
 
     //updatePositions();
-/*
+
     if ( rotateCylinders ) {
         rotate();
         updateRotations();
-        MV = glm::rotate ( MV, x_angle, glm::vec3(1.0f,0.0f,0.0f) );
-        MV = glm::rotate ( MV, y_angle, glm::vec3(0.0f,1.0f,0.0f) );
+        //MV = glm::rotate ( MV, x_angle, glm::vec3(1.0f,0.0f,0.0f) );
+        //MV = glm::rotate ( MV, y_angle, glm::vec3(0.0f,1.0f,0.0f) );
+
+        // Rotations
+        glEnableVertexAttribArray( locRotMat );
+        glEnableVertexAttribArray( locRotMat + 1 );
+        glEnableVertexAttribArray( locRotMat + 2 );
+        glEnableVertexAttribArray( locRotMat + 3 );
+
+        glBindBuffer( GL_ARRAY_BUFFER, vbo[4] );
+        glBufferData( GL_ARRAY_BUFFER, sizeof(GLfloat) * 4 * 4 * num_cylinders, rotMat, GL_DYNAMIC_DRAW );
+
+        glVertexAttribDivisorARB(locInstance, 1);
+        glVertexAttribDivisorARB(locColor, 1);
+        glVertexAttribDivisorARB(locRotations, 1);
+        glVertexAttribDivisorARB(locVelocities, 1);
+
+        glVertexAttribDivisorARB( locRotMat, 1);
+        glVertexAttribDivisorARB( locRotMat + 1, 1 );
+        glVertexAttribDivisorARB( locRotMat + 2, 1 );
+        glVertexAttribDivisorARB( locRotMat + 3, 1 );
     }
 
     glGetFloatv(GL_MODELVIEW_MATRIX, &MV[0][0]);
-*/
+
+    
     if(first == 0) {
         glUniform1f(locElapsedTime, elapsed_time);
 
         glDrawElementsInstancedEXT ( GL_TRIANGLE_STRIP, num_indices, GL_UNSIGNED_INT, indices, num_cylinders );
     }
+
+    glDrawElements(GL_TRIANGLE_STRIP, num_indices, GL_UNSIGNED_INT, indices);
 
     frames++;
     ms_elapsed = qt.elapsed();
