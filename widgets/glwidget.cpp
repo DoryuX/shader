@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <QFile>
 #include <QTime>
+#include <ctime>
 
 #include <iostream>
 

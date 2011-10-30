@@ -3,11 +3,19 @@
 ######################################################################
 
 QT+=opengl
-LIBS+=-lGLEW
+
+win32-* {
+    LIBS += -L$$PWD/resources/ -lGLEW
+}
+
+linux-* {
+    LIBS += -lGLEW
+}
+
 TEMPLATE = app
 TARGET = shader
 DEPENDPATH += .
-INCLUDEPATH += .
+INCLUDEPATH += $$PWD/math/
 
 # Input
 HEADERS += math/algebra3.h \
