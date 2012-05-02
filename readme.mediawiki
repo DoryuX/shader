@@ -1,0 +1,37 @@
+=== Disclaimer ===
+
+This is just a temporary project.  I'm not expecting to keep this up to date or improve upon this project too often unless people who discover it show some interest.  Please forgive me for any sloppy/lazy coding techniques/bad habits you may come across.  As I get better at OpenGL, I'll revisit this project and do a major overhaul.
+
+== TL;DR ==
+**Download and install**
+* [[http://qt.nokia.com/downloads|Qt]]
+* OpenGL and GLEW
+
+** Run the project **
+* qmake <enter>
+* make <enter>
+* executable will be in the **build** directory
+
+**//Just a side note//**: I've been able to do this in Ubuntu 11.10, but I've since switched to Linux Mint 11 and haven't been successful in simply 'qmake/make' and had to revert to the QtCreator until I figure it out.
+
+
+
+== Getting Started ==
+
+This project uses **Qt**, which is a platform-independent development framework provided by Nokia.
+
+Grab the latest version: [[http://qt.nokia.com/downloads|http://qt.nokia.com/downloads]]
+
+I mainly work under Ubuntu Linux, so I have not tested whether or not this project runs under any other OS (Mac or Windows).  This may change later on.
+
+Of course, you'll want to install OpenGL and GLEW.
+
+=== Running ===
+
+If you're not using the IDE (Qt Creator) that Qt provides, then you can build the project by typing //qmake// then //make// in the terminal (provided that these are a part of your environment variables).  This will create a **build** directory, where you'll find the output file ready to be executed.
+
+**usage:** $//./shader <number of objects> <level of detail> <use rotation>//
+
+**ex:** $ ./shader 100000 10 1
+
+Currently, shaders are using GLSL version 3.3.0, so if your setup is using something other than this version, you may need to create new shaders.
